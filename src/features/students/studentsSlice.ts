@@ -13,7 +13,7 @@ export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/students");
+      const response = await axios.get<Student[]>("/students");
       return response.data;
     } catch (error: any) {
       if (!error.response) {
@@ -28,7 +28,26 @@ export const createStudent = createAsyncThunk(
   "students/createStudent",
   async (newStudent: Student, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/students", newStudent);
+      const response = await axios.post<Student>("/students", newStudent);
+      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      if (!error.response) {
+        throw error;
+      }
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const updateStudent = createAsyncThunk(
+  "students/updateStudent",
+  async (editingStudent: Student, { rejectWithValue }) => {
+    try {
+      const response = await axios.put<Student>(
+        `/students/${editingStudent.Id}`,
+        editingStudent
+      );
       console.log(response.data);
       return response.data;
     } catch (error: any) {
@@ -45,7 +64,7 @@ const studentsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: {
-    [fetchStudents.pending.toString()]: (state, action) => {
+    [fetchStudents.pending.toString()]: (state) => {
       state.status = "loading";
     },
     [fetchStudents.fulfilled.toString()]: (state, action) => {
@@ -58,7 +77,7 @@ const studentsSlice = createSlice({
       state.error = action.payload;
     },
 
-    [createStudent.pending.toString()]: (state, action) => {
+    [createStudent.pending.toString()]: (state) => {
       state.status = "loading";
     },
     [createStudent.fulfilled.toString()]: (state, action) => {
@@ -67,6 +86,23 @@ const studentsSlice = createSlice({
       state.error = null;
     },
     [createStudent.rejected.toString()]: (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
+    },
+
+    [updateStudent.pending.toString()]: (state) => {
+      state.status = "loading";
+    },
+    [updateStudent.fulfilled.toString()]: (state, action) => {
+      state.status = "succeeded";
+      for (let i = 0; i < state.students.length; i++) {
+        if (action.payload.Id === state.students[i].Id) {
+          state.students[i] = action.payload;
+        }
+      }
+      state.error = null;
+    },
+    [updateStudent.rejected.toString()]: (state, action) => {
       state.status = "failed";
       state.error = action.payload;
     },

@@ -1,30 +1,25 @@
 import React from "react";
 import { Student } from "../../types";
 
-const StudentsCard: React.FC<StudentsCardProps> = ({ students }) => {
+const StudentsCard: React.FC<StudentsCardProps> = ({ student, edit }) => {
   const studentsWithData: string[] = [];
 
-  for (let i = 0; i < students.length; i++) {
-    let studentData = "";
-    studentData += `Nombre: ${students[i].Name}\n`;
-    studentData += `Apellido: ${students[i].Surname}\n`;
-    students[i].Grade && (studentData += `Grado: ${students[i].Grade}\n`);
-    studentData += `Sección: ${students[i].Section}\n`;
-    studentData += `Código: ${students[i].Code}\n`;
-    studentsWithData.push(studentData);
-  }
+  let studentData = "";
+  studentData += `Nombre: ${student.Name}\n`;
+  studentData += `Apellido: ${student.Surname}\n`;
+  studentData += `Grado: ${student.Grade}\n`;
+  studentData += `Sección: ${student.Section}\n`;
+  studentData += `Código: ${student.Code}\n`;
+  studentData += `Cédula: ${student.PublicId}\n`;
+  studentData += `Fecha de Nacimiento: ${student.Birthdate.split("T")[0]}\n`;
+  studentsWithData.push(studentData);
 
-  return (
-    <div>
-      {studentsWithData.map((student, i) => (
-        <pre key={i}>{student}</pre>
-      ))}
-    </div>
-  );
+  return <pre onClick={() => edit()}>{studentData}</pre>;
 };
 
 export default StudentsCard;
 
 interface StudentsCardProps {
-  students: Student[];
+  student: Student;
+  edit: Function;
 }

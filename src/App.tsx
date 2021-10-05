@@ -1,9 +1,9 @@
 import Students from "./features/students/Students";
+import "./App.css";
 
 const App = () => {
   return (
     <div>
-      <h1>Students</h1>
       <Students />
     </div>
   );

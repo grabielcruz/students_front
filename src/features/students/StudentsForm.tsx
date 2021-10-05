@@ -1,19 +1,22 @@
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { grades, sections } from "../../constants";
 import { Student } from "../../types";
-import { createStudent } from "./studentsSlice";
+import { createStudent, updateStudent } from "./studentsSlice";
 
-const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
+const StudentsForm: React.FC<StudentFormProps> = ({
+  student,
+  setStudent,
+  zeroStudent,
+  closeModal,
+}) => {
   const dispatch = useDispatch();
-  const [editingStudent, setEditingStudent] = useState<Student>(student);
 
   const handleChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setEditingStudent((state) => ({
+    setStudent((state) => ({
       ...state,
       [e.target.name]: e.target.value,
     }));
@@ -21,12 +24,18 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newStudent = { ...editingStudent };
+    const newStudent = { ...student };
     const date = new Date(newStudent.Birthdate);
     newStudent.Birthdate = date.toISOString();
     console.log(newStudent);
-    dispatch(createStudent(newStudent));
-    setEditingStudent(zeroStudent);
+
+    if (newStudent.Id === 0) {
+      dispatch(createStudent(newStudent));
+    } else {
+      dispatch(updateStudent(newStudent));
+    }
+    setStudent(zeroStudent);
+    closeModal();
   };
 
   return (
@@ -37,7 +46,7 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
           type="text"
           name="Name"
           onChange={(e) => handleChange(e)}
-          value={editingStudent.Name}
+          value={student.Name}
         />
       </label>
       <label htmlFor="Surname">
@@ -46,7 +55,7 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
           type="text"
           name="Surname"
           onChange={(e) => handleChange(e)}
-          value={editingStudent.Surname}
+          value={student.Surname}
         />
       </label>
       <label htmlFor="PublicId">
@@ -55,7 +64,7 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
           type="text"
           name="PublicId"
           onChange={(e) => handleChange(e)}
-          value={editingStudent.PublicId}
+          value={student.PublicId}
         />
       </label>
       <label htmlFor="Code">
@@ -64,7 +73,7 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
           type="text"
           name="Code"
           onChange={(e) => handleChange(e)}
-          value={editingStudent.Code}
+          value={student.Code}
         />
       </label>
       <label htmlFor="Birthdate">
@@ -72,13 +81,17 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
         <input
           type="date"
           name="Birthdate"
-          value={editingStudent.Birthdate}
+          value={student.Birthdate.split("T")[0]}
           onChange={(e) => handleChange(e)}
         />
       </label>
       <label htmlFor="Grade">
         Grado:
-        <select name="Grade" onChange={(e) => handleChange(e)}>
+        <select
+          name="Grade"
+          onChange={(e) => handleChange(e)}
+          value={student.Grade}
+        >
           {grades.map((grade, i) => (
             <option key={i} value={grade}>
               {grade}
@@ -88,7 +101,11 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
       </label>
       <label htmlFor="Section">
         Sección:
-        <select name="Section" onChange={(e) => handleChange(e)}>
+        <select
+          name="Section"
+          onChange={(e) => handleChange(e)}
+          value={student.Section}
+        >
           {sections.map((section, i) => (
             <option key={i} value={section}>
               {section}
@@ -96,14 +113,18 @@ const StudentsForm: React.FC<StudentFormProps> = ({ student, zeroStudent }) => {
           ))}
         </select>
       </label>
-      <button type="submit">Registrar</button>
+      <button type="submit">
+        {student.Id === 0 ? "Registrar" : "Actualizar"}
+      </button>
     </form>
   );
 };
 
 interface StudentFormProps {
   student: Student;
+  setStudent: React.Dispatch<React.SetStateAction<Student>>;
   zeroStudent: Student;
+  closeModal: Function;
 }
 
 export default StudentsForm;

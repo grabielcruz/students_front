@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import Modal from "../../common/Modal";
 import { Student } from "../../types";
 import StudentsCard from "./StudentsCard";
 import StudentsForm from "./StudentsForm";
@@ -19,6 +20,9 @@ const Students = () => {
     Photo: "",
   };
 
+  const [editingStudent, setEditingStudent] = useState<Student>(zeroStudent);
+  const [modal, setModal] = useState<boolean>(false);
+
   const students = useSelector((state: RootState) => state.students.students);
   const status = useSelector((state: RootState) => state.students.status);
   const error = useSelector((state: RootState) => state.students.error);
@@ -29,12 +33,51 @@ const Students = () => {
     if (status === "idle") dispatch(fetchStudents());
   }, [dispatch, status]);
 
+  useEffect(() => {
+    console.log(editingStudent);
+  }, [editingStudent]);
+
   return (
     <div>
+      {modal && (
+        <Modal
+          content={
+            <StudentsForm
+              student={editingStudent}
+              setStudent={setEditingStudent}
+              zeroStudent={zeroStudent}
+              closeModal={() => setModal(false)}
+            />
+          }
+          onClose={() => {
+            setModal(false);
+          }}
+        />
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          setModal(true);
+          setEditingStudent(zeroStudent);
+        }}
+      >
+        Crear estudiante
+      </button>
+
       {error && error}
       {status === "loading" && "loading..."}
-      <StudentsForm student={zeroStudent} zeroStudent={zeroStudent} />
-      <StudentsCard students={students} />
+
+      {students.map((student, i) => (
+        <StudentsCard
+          student={student}
+          key={i}
+          edit={() => {
+            setEditingStudent(student);
+            setModal(true);
+          }}
+        />
+      ))}
     </div>
   );
 };
