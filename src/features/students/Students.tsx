@@ -5,7 +5,7 @@ import Modal from "../../common/Modal";
 import { Student } from "../../types";
 import StudentsCard from "./StudentsCard";
 import StudentsForm from "./StudentsForm";
-import { fetchStudents } from "./studentsSlice";
+import { fetchStudents, deleteStudent } from "./studentsSlice";
 
 const Students = () => {
   const zeroStudent: Student = {
@@ -22,6 +22,7 @@ const Students = () => {
 
   const [editingStudent, setEditingStudent] = useState<Student>(zeroStudent);
   const [modal, setModal] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
   const students = useSelector((state: RootState) => state.students.students);
   const status = useSelector((state: RootState) => state.students.status);
@@ -41,18 +42,38 @@ const Students = () => {
     <div>
       {modal && (
         <Modal
-          content={
-            <StudentsForm
-              student={editingStudent}
-              setStudent={setEditingStudent}
-              zeroStudent={zeroStudent}
-              closeModal={() => setModal(false)}
-            />
-          }
           onClose={() => {
             setModal(false);
           }}
-        />
+        >
+          <StudentsForm
+            student={editingStudent}
+            setStudent={setEditingStudent}
+            zeroStudent={zeroStudent}
+            closeModal={() => setModal(false)}
+          />
+        </Modal>
+      )}
+
+      {deleteModal && (
+        <Modal onClose={() => setDeleteModal(false)}>
+          <div>
+            <p>Desea borrar el estudiante?</p>{" "}
+            <button
+              type="button"
+              onClick={() => {
+                dispatch(deleteStudent(editingStudent.Id));
+                setDeleteModal(false);
+                setEditingStudent(zeroStudent);
+              }}
+            >
+              Sí
+            </button>
+            <button type="button" onClick={() => setDeleteModal(false)}>
+              No
+            </button>
+          </div>
+        </Modal>
       )}
 
       <button
@@ -72,9 +93,13 @@ const Students = () => {
         <StudentsCard
           student={student}
           key={i}
-          edit={() => {
+          editStudent={() => {
             setEditingStudent(student);
             setModal(true);
+          }}
+          deleteStudent={() => {
+            setEditingStudent(student);
+            setDeleteModal(true);
           }}
         />
       ))}

@@ -1,20 +1,19 @@
 import "./Modal.css";
 
-const Modal: React.FC<ModalProps> = ({ content, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
   return (
     <div className="modal">
       <div className="modal-content">
         <span className="close" onClick={() => onClose()}>
           &times;
         </span>
-        {content}
+        {children}
       </div>
     </div>
   );
 };
 
 interface ModalProps {
-  content: any;
   onClose: Function;
 }
 

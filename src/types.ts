@@ -10,6 +10,10 @@ export interface Student {
   Photo: string;
 }
 
+export interface IdResponse {
+  Id: number;
+}
+
 export type Status = "idle" | "loading" | "succeeded" | "failed";
 
 export type Error = string | null;

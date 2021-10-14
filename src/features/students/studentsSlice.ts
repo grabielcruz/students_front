@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Error, Status, Student } from "../../types";
+import { Error, IdResponse, Status, Student } from "../../types";
 // const URL = process.env.REACT_APP_API_URI || "http://localhost:8080";
 
 const initialState: StudentsState = {
@@ -29,7 +29,6 @@ export const createStudent = createAsyncThunk(
   async (newStudent: Student, { rejectWithValue }) => {
     try {
       const response = await axios.post<Student>("/students", newStudent);
-      console.log(response.data);
       return response.data;
     } catch (error: any) {
       if (!error.response) {
@@ -48,7 +47,21 @@ export const updateStudent = createAsyncThunk(
         `/students/${editingStudent.Id}`,
         editingStudent
       );
-      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      if (!error.response) {
+        throw error;
+      }
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteStudent = createAsyncThunk(
+  "students/deleteStudent",
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete<IdResponse>(`students/${id}`);
       return response.data;
     } catch (error: any) {
       if (!error.response) {
@@ -105,6 +118,24 @@ const studentsSlice = createSlice({
     [updateStudent.rejected.toString()]: (state, action) => {
       state.status = "failed";
       state.error = action.payload;
+    },
+
+    [deleteStudent.pending.toString()]: (state, action) => {
+      state.status = "loading";
+    },
+    [deleteStudent.fulfilled.toString()]: (state, action) => {
+      state.status = "succeeded";
+      for (let i = 0; i < state.students.length; i++) {
+        if (action.payload.Id === state.students[i].Id) {
+          state.students = state.students
+            .slice(0, i)
+            .concat(state.students.slice(i + 1));
+          state.error = null;
+          return;
+        }
+      }
+      state.error =
+        "Estudiante eliminado no estaba registrado en el lado cliente";
     },
   },
 });

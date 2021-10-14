@@ -1,7 +1,12 @@
 import React from "react";
 import { Student } from "../../types";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
-const StudentsCard: React.FC<StudentsCardProps> = ({ student, edit }) => {
+const StudentsCard: React.FC<StudentsCardProps> = ({
+  student,
+  editStudent,
+  deleteStudent,
+}) => {
   const studentsWithData: string[] = [];
 
   let studentData = "";
@@ -14,12 +19,19 @@ const StudentsCard: React.FC<StudentsCardProps> = ({ student, edit }) => {
   studentData += `Fecha de Nacimiento: ${student.Birthdate.split("T")[0]}\n`;
   studentsWithData.push(studentData);
 
-  return <pre onClick={() => edit()}>{studentData}</pre>;
+  return (
+    <div>
+      <pre>{studentData}</pre>
+      <FaEdit onClick={() => editStudent()} />
+      <FaTrash onClick={() => deleteStudent()} />
+    </div>
+  );
 };
 
 export default StudentsCard;
 
 interface StudentsCardProps {
   student: Student;
-  edit: Function;
+  editStudent: Function;
+  deleteStudent: Function;
 }
