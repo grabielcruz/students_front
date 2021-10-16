@@ -1,25 +1,16 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import Modal from "../../common/Modal";
-import { Student } from "../../types";
+import { Student, zeroStudent } from "../../types";
 import StudentsCard from "./StudentsCard";
 import StudentsForm from "./StudentsForm";
 import { fetchStudents, deleteStudent } from "./studentsSlice";
 
-const Students = () => {
-  const zeroStudent: Student = {
-    Id: 0,
-    Name: "",
-    Surname: "",
-    Code: "",
-    Grade: "sin grado",
-    Section: "sin sección",
-    Birthdate: "2000-01-01",
-    PublicId: "",
-    Photo: "",
-  };
+let a = 0;
 
+const Students = () => {
+  a += 1;
   const [editingStudent, setEditingStudent] = useState<Student>(zeroStudent);
   const [modal, setModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
@@ -34,12 +25,13 @@ const Students = () => {
     if (status === "idle") dispatch(fetchStudents());
   }, [dispatch, status]);
 
-  useEffect(() => {
-    console.log(editingStudent);
-  }, [editingStudent]);
+  const resetStudent = (fn: (student: Student) => void) => {
+    setEditingStudent(zeroStudent);
+  };
 
   return (
     <div>
+      <span>Renders: {a}</span>
       {modal && (
         <Modal
           onClose={() => {
@@ -48,8 +40,7 @@ const Students = () => {
         >
           <StudentsForm
             student={editingStudent}
-            setStudent={setEditingStudent}
-            zeroStudent={zeroStudent}
+            resetStudent={resetStudent}
             closeModal={() => setModal(false)}
           />
         </Modal>
@@ -89,10 +80,10 @@ const Students = () => {
       {error && error}
       {status === "loading" && "loading..."}
 
-      {students.map((student, i) => (
+      {students.map((student) => (
         <StudentsCard
           student={student}
-          key={i}
+          key={student.Id}
           editStudent={() => {
             setEditingStudent(student);
             setModal(true);

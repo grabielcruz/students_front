@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { grades, sections } from "../../constants";
 import { Student } from "../../types";
@@ -5,48 +6,65 @@ import { createStudent, updateStudent } from "./studentsSlice";
 
 const StudentsForm: React.FC<StudentFormProps> = ({
   student,
-  setStudent,
-  zeroStudent,
+  resetStudent,
   closeModal,
 }) => {
+  const refName = useRef<HTMLInputElement | null>(null);
+  const refSurname = useRef<HTMLInputElement | null>(null);
+  const refPublicId = useRef<HTMLInputElement | null>(null);
+  const refCode = useRef<HTMLInputElement | null>(null);
+  const refBirthdate = useRef<HTMLInputElement | null>(null);
+  const refGrade = useRef<HTMLSelectElement | null>(null);
+  const refSection = useRef<HTMLSelectElement | null>(null);
+
   const dispatch = useDispatch();
 
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setStudent((state) => ({
-      ...state,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newStudent = { ...student };
+    const newStudent: Student = {
+      Id: student.Id,
+      Name: refName.current?.value || "",
+      Surname: refSurname.current?.value || "",
+      PublicId: refPublicId.current?.value || "",
+      Code: refCode.current?.value || "",
+      Birthdate: refBirthdate.current?.value || "",
+      Grade: refGrade.current?.value || "",
+      Section: refSection.current?.value || "",
+      Photo: "",
+    };
     const date = new Date(newStudent.Birthdate);
     newStudent.Birthdate = date.toISOString();
-    console.log(newStudent);
 
     if (newStudent.Id === 0) {
       dispatch(createStudent(newStudent));
     } else {
       dispatch(updateStudent(newStudent));
     }
-    setStudent(zeroStudent);
+    resetStudent();
     closeModal();
   };
 
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  // console.log(refName.current?.value);
+  // console.log(refSurname.current?.value);
+  // console.log(refPublicId.current?.value);
+  // console.log(refCode.current?.value);
+  // console.log(refBirthdate.current?.value);
+  // console.log(refGrade.current?.value);
+  // console.log(refSection.current?.value);
+  // };
+
   return (
-    <form onSubmit={(e) => onSubmit(e)}>
+    <form onSubmit={(e) => handleSubmit(e)}>
       <label htmlFor="Name">
         Nomber:
         <input
           type="text"
           name="Name"
-          onChange={(e) => handleChange(e)}
-          value={student.Name}
+          ref={refName}
+          defaultValue={student.Name}
         />
       </label>
       <label htmlFor="Surname">
@@ -54,8 +72,8 @@ const StudentsForm: React.FC<StudentFormProps> = ({
         <input
           type="text"
           name="Surname"
-          onChange={(e) => handleChange(e)}
-          value={student.Surname}
+          ref={refSurname}
+          defaultValue={student.Surname}
         />
       </label>
       <label htmlFor="PublicId">
@@ -63,8 +81,8 @@ const StudentsForm: React.FC<StudentFormProps> = ({
         <input
           type="text"
           name="PublicId"
-          onChange={(e) => handleChange(e)}
-          value={student.PublicId}
+          ref={refPublicId}
+          defaultValue={student.PublicId}
         />
       </label>
       <label htmlFor="Code">
@@ -72,8 +90,8 @@ const StudentsForm: React.FC<StudentFormProps> = ({
         <input
           type="text"
           name="Code"
-          onChange={(e) => handleChange(e)}
-          value={student.Code}
+          ref={refCode}
+          defaultValue={student.Code}
         />
       </label>
       <label htmlFor="Birthdate">
@@ -81,19 +99,15 @@ const StudentsForm: React.FC<StudentFormProps> = ({
         <input
           type="date"
           name="Birthdate"
-          value={student.Birthdate.split("T")[0]}
-          onChange={(e) => handleChange(e)}
+          ref={refBirthdate}
+          defaultValue={student.Birthdate.split("T")[0]}
         />
       </label>
       <label htmlFor="Grade">
         Grado:
-        <select
-          name="Grade"
-          onChange={(e) => handleChange(e)}
-          value={student.Grade}
-        >
-          {grades.map((grade, i) => (
-            <option key={i} value={grade}>
+        <select name="Grade" ref={refGrade} defaultValue={student.Grade}>
+          {grades.map((grade) => (
+            <option key={grade} value={grade}>
               {grade}
             </option>
           ))}
@@ -101,13 +115,9 @@ const StudentsForm: React.FC<StudentFormProps> = ({
       </label>
       <label htmlFor="Section">
         Sección:
-        <select
-          name="Section"
-          onChange={(e) => handleChange(e)}
-          value={student.Section}
-        >
-          {sections.map((section, i) => (
-            <option key={i} value={section}>
+        <select name="Section" ref={refSection} defaultValue={student.Section}>
+          {sections.map((section) => (
+            <option key={section} value={section}>
               {section}
             </option>
           ))}
@@ -122,8 +132,7 @@ const StudentsForm: React.FC<StudentFormProps> = ({
 
 interface StudentFormProps {
   student: Student;
-  setStudent: React.Dispatch<React.SetStateAction<Student>>;
-  zeroStudent: Student;
+  resetStudent: Function;
   closeModal: Function;
 }
 

@@ -19,7 +19,7 @@ export const grades = [
 ];
 
 export const sections = [
-  "sin seccion",
+  "sin sección",
   "A",
   "B",
   "C",

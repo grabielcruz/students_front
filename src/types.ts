@@ -10,6 +10,18 @@ export interface Student {
   Photo: string;
 }
 
+export const zeroStudent: Student = {
+  Id: 0,
+  Name: "",
+  Surname: "",
+  Code: "",
+  Grade: "sin grado",
+  Section: "sin sección",
+  Birthdate: "2000-01-01",
+  PublicId: "",
+  Photo: "",
+};
+
 export interface IdResponse {
   Id: number;
 }
